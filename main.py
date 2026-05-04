@@ -13,11 +13,11 @@ st.set_page_config(
 
 
 def main():
-    
+
     file = st.sidebar.file_uploader('Datei hochladen')
     if file:
-        option: int = st.sidebar.selectbox(
-            'Spektrum auswählen', (1, 2, 3))
+        option: str = st.sidebar.selectbox(
+            'Spektrum auswählen', ('Main Range', 'Low Range', 'Light Range'))
         slider_x = st.sidebar.slider('x range', 0, 60, (0, 60))
 
         x, y = read_spectrum(file, option)
@@ -34,7 +34,13 @@ def main():
         st.write(fig)
 
 
-def read_spectrum(file, option: int) -> list[float]:
+def read_spectrum(file, option: str) -> list[float]:
+
+    range = {
+        'Main Range': 1,
+        'Low Range': 2,
+        'Light Range': 3
+    }
 
     df = pd.read_csv(file, sep=r'\t')
     keys: str = df.keys()
@@ -42,7 +48,7 @@ def read_spectrum(file, option: int) -> list[float]:
     x: list[float] = pd.to_numeric(df[keys[0]], errors='coerce')
 
     y: list[float] = (
-        df[keys[option]]
+        df[keys[range[option]]]
         .astype(str)
         .str.replace('.', '', regex=False)
         .pipe(pd.to_numeric, errors='coerce')
